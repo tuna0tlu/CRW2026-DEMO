@@ -9,6 +9,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.EstimatedRobotPose; // +++
 
 public class Vision {
     private final PhotonCamera camera;
@@ -16,9 +17,7 @@ public class Vision {
 
     public Vision() {
         camera = new PhotonCamera(VisionConstants.CAMERA_NAME);
-
         AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-
         poseEstimator = new PhotonPoseEstimator(
             fieldLayout,
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
@@ -28,9 +27,14 @@ public class Vision {
 
     public Optional<Pose2d> getEstimatedGlobalPose() {
         PhotonPipelineResult latestResult = camera.getLatestResult();
-        if (!latestResult.hasTargets()) {
-            return Optional.empty();
-        }
+        if (!latestResult.hasTargets()) return Optional.empty();
         return poseEstimator.update(latestResult).map(est -> est.estimatedPose.toPose2d());
+    }
+
+    // +++ Zaman damgası için ek yöntem (mevcut API'yi bozmaz)
+    public Optional<EstimatedRobotPose> getEstimatedRobotPose() {
+        PhotonPipelineResult latestResult = camera.getLatestResult();
+        if (!latestResult.hasTargets()) return Optional.empty();
+        return poseEstimator.update(latestResult);
     }
 }
