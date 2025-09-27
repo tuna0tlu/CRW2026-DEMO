@@ -37,6 +37,9 @@ public final class Constants {
         public static final double MAX_SPEED_METERS_PER_SECOND = 4.5;
         public static final double MAX_ANGULAR_SPEED_RADIANS_PER_SECOND = 2 * Math.PI;
         public static final double JOYSTICK_DEADBAND = 0.1;
+    
+        public static final double TRANSLATION_ACCEL_LIMIT = 3.0; 
+        public static final double ROTATION_ACCEL_LIMIT = 3.0;
     }
 
     public static final class SwerveConstants {
@@ -59,4 +62,5 @@ public final class Constants {
         public static final double BL_OFFSET = 356.3 + 180.0;
         public static final double BR_OFFSET = 245.5 + 180.0;
     }
+
 }
