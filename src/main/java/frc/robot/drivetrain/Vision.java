@@ -4,12 +4,13 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.Constants.VisionConstants;
+import java.util.List;
 import java.util.Optional;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.EstimatedRobotPose; // +++
+import org.photonvision.EstimatedRobotPose;
 
 public class Vision {
     private final PhotonCamera camera;
@@ -26,15 +27,22 @@ public class Vision {
     }
 
     public Optional<Pose2d> getEstimatedGlobalPose() {
-        PhotonPipelineResult latestResult = camera.getLatestResult();
+        List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+        if (results.isEmpty()) return Optional.empty();
+
+        PhotonPipelineResult latestResult = results.get(results.size() - 1);
         if (!latestResult.hasTargets()) return Optional.empty();
+
         return poseEstimator.update(latestResult).map(est -> est.estimatedPose.toPose2d());
     }
 
-    // +++ Zaman damgası için ek yöntem (mevcut API'yi bozmaz)
     public Optional<EstimatedRobotPose> getEstimatedRobotPose() {
-        PhotonPipelineResult latestResult = camera.getLatestResult();
+        List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+        if (results.isEmpty()) return Optional.empty();
+
+        PhotonPipelineResult latestResult = results.get(results.size() - 1);
         if (!latestResult.hasTargets()) return Optional.empty();
+
         return poseEstimator.update(latestResult);
     }
 }
