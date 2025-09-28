@@ -26,23 +26,27 @@ public class Vision {
         );
     }
 
-    public Optional<Pose2d> getEstimatedGlobalPose() {
+    private Optional<PhotonPipelineResult> getLatestResultWithTargets() {
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-        if (results.isEmpty()) return Optional.empty();
+        if (results.isEmpty()) {
+            return Optional.empty();
+        }
 
         PhotonPipelineResult latestResult = results.get(results.size() - 1);
-        if (!latestResult.hasTargets()) return Optional.empty();
+        if (!latestResult.hasTargets()) {
+            return Optional.empty();
+        }
 
-        return poseEstimator.update(latestResult).map(est -> est.estimatedPose.toPose2d());
+        return Optional.of(latestResult);
+    }
+
+    public Optional<Pose2d> getEstimatedGlobalPose() {
+        return getLatestResultWithTargets()
+            .flatMap(poseEstimator::update)
+            .map(est -> est.estimatedPose.toPose2d());
     }
 
     public Optional<EstimatedRobotPose> getEstimatedRobotPose() {
-        List<PhotonPipelineResult> results = camera.getAllUnreadResults();
-        if (results.isEmpty()) return Optional.empty();
-
-        PhotonPipelineResult latestResult = results.get(results.size() - 1);
-        if (!latestResult.hasTargets()) return Optional.empty();
-
-        return poseEstimator.update(latestResult);
+        return getLatestResultWithTargets().flatMap(poseEstimator::update);
     }
 }
